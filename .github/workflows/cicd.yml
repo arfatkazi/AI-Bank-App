@@ -1,6 +1,19 @@
 name: CICD
 on:
-  workflow_dispatch: null
+  workflow_dispatch:
+    inputs:
+      evironment:
+        description: this is the environment value where this workflow runs
+        default: 'dev'
+        required: true
+        type: choice
+        options:
+            - dev
+            - test
+            - production
+  push:
+   paths:
+     - "**.yml"
 jobs:
   code:
     runs-on: ubuntu-latest
@@ -20,7 +33,7 @@ jobs:
       - name: testing
         run: echo "testing the app"
   deploy:
-    needs: [build,test]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: deploy
