@@ -33,7 +33,7 @@ jobs:
       - name: testing
         run: echo "testing the app"
   deploy:
-    if: inputs.evironment == "dev"
+    if: ${{ github.event.inputs.environment == 'dev' }}
     needs: [test]
     runs-on: ubuntu-latest
     steps:
