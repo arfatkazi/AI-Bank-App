@@ -32,7 +32,7 @@ services:
       - bankapp-net
 
   bankapp:
-    build: .
+    image: arfat942/ai-bankapp-devops-bankapp:latest
     container_name: bank-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bankappdb
