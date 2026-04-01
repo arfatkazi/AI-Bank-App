@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bankapp
+  namespace: bankapp
+  labels:
+    app: bankapp
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bankapp
+
+  template:
+    metadata:
+      labels:
+        app: bankapp
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z mysql.mysql.svc.cluster.local 3306; do echo "waiting for mysql"; sleep 5; done
+
+        - name: wait-for-ollama
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z ollama.ollama.svc.cluster.local 11434; do echo "waiting for ollama"; sleep 5; done
+
+      containers:
+        - name: bankapp
+          image: arfat942/ai-bankapp-devops-bankapp:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - configMapRef:
+                name: bankapp-config
+            - secretRef:
+                name: bankapp-secret
+
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6

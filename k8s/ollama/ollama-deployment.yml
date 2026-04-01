@@ -1,0 +1,60 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: ollama-deploy
+  namspace: bankapp
+  labels:
+    app: ollama
+
+spec:
+  replicas: 1
+  selector:
+    matchLables:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 11434
+              name: ollama
+
+          volumeMounts:
+            - name: ollama-storage
+              mountPath: /root/.ollama
+
+
+          readinessProbe:
+            tcpSocket: 
+              port: 11434
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold:  6
+
+          livenessProbe:
+            tcpSocket:
+              port: 11434
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+    volumes:
+      - name: ollama-storage
+        persistentVolumeClaim: 
+          claimName: ollama-pvc
+
+
+
+
+
+
+

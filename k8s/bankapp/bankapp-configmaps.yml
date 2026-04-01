@@ -1,0 +1,14 @@
+kind: ConfigMap
+apiVersion: v1
+
+
+metadata:
+  name: bankapp-config
+  namespace: bankapp
+
+
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql.mysql.svc.cluster.local:3306/bankappdb"
+  SPRING_DATASOURCE_USERNAME: "root"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  OLLAMA_URL: "http://ollama.ollama.svc.cluster.local:11434"
